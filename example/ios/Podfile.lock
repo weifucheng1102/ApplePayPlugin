@@ -1,0 +1,22 @@
+PODS:
+  - apple_pay_plugin (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - apple_pay_plugin (from `.symlinks/plugins/apple_pay_plugin/ios`)
+  - Flutter (from `.symlinks/flutter/ios`)
+
+EXTERNAL SOURCES:
+  apple_pay_plugin:
+    :path: ".symlinks/plugins/apple_pay_plugin/ios"
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+
+SPEC CHECKSUMS:
+  apple_pay_plugin: 6686ed4f34477c475d6c0168c587c868290ab43a
+  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+
+PODFILE CHECKSUM: 7fb83752f59ead6285236625b82473f90b1cb932
+
+COCOAPODS: 1.7.4
