@@ -18,22 +18,15 @@ NSString * _orderid;
     _channel = channel;
   ApplePayPlugin* instance = [[ApplePayPlugin alloc] init];
   [registrar addMethodCallDelegate:instance channel:channel];
-  [registrar addApplicationDelegate:instance];
 }
--(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-     [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
-    return YES;
-}
-- (void)applicationWillTerminate:(UIApplication *)application {
-     /**结束IAP工具类*/
-     [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
-}
+
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   if([@"userApplePay" isEqualToString:call.method]){
       _orderid = call.arguments[@"orderid"];
       [self initApplePayWithProductid:call.arguments[@"productid"]];
+  } else if([@"addTransactionObserver" isEqualToString:call.method]){
+       [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
   }else{
     result(FlutterMethodNotImplemented);
   }
@@ -57,8 +50,7 @@ NSString * _orderid;
         [request start];
 
     }else{
-        UIAlertView * alert = [[UIAlertView alloc]initWithTitle:nil message:@"用户不允许内购" delegate:nil  cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-        [alert show];
+        
         NSLog(@"用户不允许内购");
     }
 
@@ -71,9 +63,7 @@ NSString * _orderid;
 
     //如果服务器没有产品
     if([product count] == 0){
-        UIAlertView * alert = [[UIAlertView alloc]initWithTitle:nil message:@"获取支付信息失败" delegate:nil  cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-        [alert show];
-        NSLog(@"没有该商品");
+        [_channel invokeMethod:@"haveNoProduct" arguments:nil];
         return;
     }
 
@@ -98,8 +88,7 @@ NSString * _orderid;
 //请求失败
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
-    UIAlertView * alert = [[UIAlertView alloc]initWithTitle:nil message:@"请求失败" delegate:nil  cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-    [alert show];
+     [_channel invokeMethod:@"requestFailed" arguments:nil];
     NSLog(@"error:%@", error);
 }
 
@@ -157,15 +146,17 @@ NSString * _orderid;
     //* orderid :生成订单时服务器返回的订单id（不是苹果支付订单）
     //* productid :要购买的app 内购项目的产品id
     //* bundleid :加密后的凭证字符串
-    
+    NSLog(@"去服务端验证");
     [self verifyWithReceipt:@{@"receipt":encodeStr,@"orderid":transaction.payment.applicationUsername,@"productid":transaction.payment.productIdentifier,@"bundleid":[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"]} Transaction:transaction];
 }
 //去服务端验证
 -(void)verifyWithReceipt:(NSDictionary *)dic Transaction:(SKPaymentTransaction *)transaction
 {
+  
     __weak __typeof(self)weakSelf = self;
     [_channel invokeMethod:@"ApplePaySuccess" arguments:dic result:^(id  _Nullable result) {
         if ([result intValue]==0) {//验证通过 或者后台订单错误 不再验证
+            NSLog(@"验证完成");
             [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
         }else{
              [weakSelf verifyWithReceipt:dic Transaction:transaction];
