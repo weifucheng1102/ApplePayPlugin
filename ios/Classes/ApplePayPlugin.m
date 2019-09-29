@@ -63,7 +63,7 @@ NSString * _orderid;
 
     //如果服务器没有产品
     if([product count] == 0){
-        [_channel invokeMethod:@"haveNoProduct" arguments:nil];
+        [_channel invokeMethod:@"haveNoProduct" arguments:@{@"test":@"test"}];
         return;
     }
 
@@ -88,7 +88,7 @@ NSString * _orderid;
 //请求失败
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
-     [_channel invokeMethod:@"requestFailed" arguments:nil];
+     [_channel invokeMethod:@"requestFailed" arguments:@{@"test":@"test"}];
     NSLog(@"error:%@", error);
 }
 
@@ -122,6 +122,7 @@ NSString * _orderid;
                 break;
             case SKPaymentTransactionStateFailed:
                 NSLog(@"交易失败");
+                 [_channel invokeMethod:@"payFailed" arguments:@{@"test":@"test"}];
                 [[SKPaymentQueue defaultQueue] finishTransaction:tran];
 
                 break;
