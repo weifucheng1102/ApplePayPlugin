@@ -18,27 +18,31 @@ class ApplePayPlugin {
   EventHandler _onReceiveNotification;
   EventHandler _haveNoProduct;
   EventHandler _requestFailed;
+  EventHandler _payFailed;
   void addEventHandler({
     EventHandler onReceiveNotification,
     EventHandler haveNoProduct,
     EventHandler requestFailed,
-
+    EventHandler payFailed,
   }) {
     _onReceiveNotification = onReceiveNotification;
     _haveNoProduct = haveNoProduct;
     _requestFailed = requestFailed;
+    _payFailed = payFailed;
     _channel.setMethodCallHandler(_handleMethod);
   }
 
 
   Future<dynamic> _handleMethod(MethodCall call) async {
     switch (call.method) {
-      case "ApplePaySuccess":
+      case 'ApplePaySuccess':
         return _onReceiveNotification(call.arguments.cast<String, dynamic>());
-      case "haveNoProduct":
+      case 'haveNoProduct':
         return _haveNoProduct(call.arguments.cast<String, dynamic>());
-      case "requestFailed":
+      case 'requestFailed':
         return _requestFailed(call.arguments.cast<String, dynamic>());
+      case 'payFailed':
+        return _payFailed(call.arguments.cast<String, dynamic>());
       default:
         throw new UnsupportedError("Unrecognized Event");
     }
