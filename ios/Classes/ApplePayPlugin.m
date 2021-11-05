@@ -139,6 +139,11 @@ NSString * _orderid;
     // 验证凭据，获取到苹果返回的交易凭据
     // appStoreReceiptURL iOS7.0增加的，购买交易完成后，会将凭据存放在该地址
     NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
+    if(!receiptURL){
+     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+      NSLog(@"2021.11.5新增--查不到凭证就直接结束了");
+      return;
+    }
     // 从沙盒中获取到购买凭据
     NSData *receiptData = [NSData dataWithContentsOfURL:receiptURL];
     NSString *encodeStr = [receiptData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
